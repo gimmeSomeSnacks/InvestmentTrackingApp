@@ -1,0 +1,19 @@
+spring:
+    application:
+        name: DB-Service
+    rabbitmq:
+        host: rabbitmq
+        port: 5672
+        username: root
+        password: privet
+    datasource:
+#        url: jdbc:postgresql://localhost:5432/postgres
+        url: jdbc:postgresql://database:5432/investmentDB
+        username: postgres
+        password: privet
+        driver-class-name: org.postgresql.Driver
+    jpa:
+        hibernate:
+            ddl-auto: update
+        show-sql: true
+        generate-ddl: true

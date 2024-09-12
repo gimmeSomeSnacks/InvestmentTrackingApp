@@ -1,0 +1,10 @@
+spring:
+    application:
+        name: Investment-Service
+    rabbitmq:
+        host: rabbitmq
+        port: 5672
+        username: root
+        password: privet
+tinkoff:
+    token: "t.0uTi2hpbDnYBUz7wzgA2UF4_VLn4TJwxlyHySclhudxK-Z97ys-RzDFMNALCEbUa2Zxb1ahG8_MQi7D50A3BKQ"
