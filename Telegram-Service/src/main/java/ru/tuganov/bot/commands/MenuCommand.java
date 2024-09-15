@@ -27,11 +27,11 @@ public class MenuCommand implements Command {
 
         InlineKeyboardButton getUsersInstruments = new InlineKeyboardButton();
         getUsersInstruments.setText(Message.instrumentList);
-        getUsersInstruments.setCallbackData("simpleGetUsersInstruments");
+        getUsersInstruments.setCallbackData("simpleGUI");
 
         InlineKeyboardButton addInstrument = new InlineKeyboardButton();
         addInstrument.setText(Message.addInstrument);
-        addInstrument.setCallbackData("contextAddInstrument");
+        addInstrument.setCallbackData("contextAI");
 
         List<InlineKeyboardButton> buttons = List.of(getUsersInstruments, addInstrument);
         List<List<InlineKeyboardButton>> rows = List.of(buttons);

@@ -1,6 +1,7 @@
 package ru.tuganov.bot.callbacks.simple;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -16,6 +17,7 @@ import java.util.List;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class GetUsersInstrumentsCallBack implements CallBackHandler {
     private final DatabaseSender databaseSender;
     private final InvestmentSender investmentSender;
@@ -25,7 +27,7 @@ public class GetUsersInstrumentsCallBack implements CallBackHandler {
         var instrumentDBDto = databaseSender.getInstruments(update.getCallbackQuery().getMessage().getChatId());
         var usersInstruments = parserDto(instrumentDBDto);
         var message = new SendMessage(String.valueOf(update.getCallbackQuery().getMessage().getChatId()), Message.instrumentList);
-        InstrumentsMarkup.addInstruments(message, usersInstruments, "get-figi-");
+        InstrumentsMarkup.addInstruments(message, usersInstruments, "simpleGUS");
         return message;
     }
 
@@ -33,9 +35,13 @@ public class GetUsersInstrumentsCallBack implements CallBackHandler {
         List<InstrumentDto> usersInstruments = new ArrayList<>();
         if (instrumentDBDtoList != null) {
             for (InstrumentDBDto instrumentDBDto : instrumentDBDtoList) {
-                var figi = instrumentDBDto.figi();
-                var instrument = investmentSender.getInstrument(figi);
-                usersInstruments.add(new InstrumentDto(instrument.name(), figi, 0));
+                var instrumentId = instrumentDBDto.getInstrumentId();
+//                log.info("list of instruments: {}", instrumentId);
+                var instrument = investmentSender.getInstrument(instrumentDBDto.getFigi());
+                usersInstruments.add(new InstrumentDto(instrument.name(),
+                                                        "id" + instrumentId,
+                                                    instrumentDBDto.getMaxPrice()
+                                                            + instrumentDBDto.getMinPrice()));
             }
         }
         return usersInstruments;

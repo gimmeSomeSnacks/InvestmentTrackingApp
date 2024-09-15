@@ -40,7 +40,7 @@ public class ContextHandler {
         if (context.isEmpty() || context == null) {
             return new SendMessage(String.valueOf(chatId), Message.unknownCommand);
         } else {
-            return inputHandlers.get(context).handle(update, userContext);
+            return inputHandlers.get(context.substring(0, "saveInstrument".length())).handle(update, userContext);
         }
     }
 }

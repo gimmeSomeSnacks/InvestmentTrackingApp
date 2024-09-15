@@ -1,3 +1,18 @@
 package ru.tuganov.dto;
 
-public record InstrumentDBDto(long chatId, String figi, double maxPrice, double minPrice) {}
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Setter
+@Getter
+@AllArgsConstructor
+@NoArgsConstructor
+public class InstrumentDBDto {
+    private Long chatId;
+    private String figi;
+    private Double maxPrice;
+    private Double minPrice;
+    private Long instrumentId;
+}

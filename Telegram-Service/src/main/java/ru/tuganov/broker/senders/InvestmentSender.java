@@ -32,12 +32,8 @@ public class InvestmentSender {
         }
         if (instruments == null) {
             log.warn("smth");
-        }
-        if (instruments instanceof ArrayList) {
-            return (ArrayList<InstrumentDto>) instruments;
-        } else {
-            log.warn(instruments.toString());
             return null;
         }
+        return (ArrayList<InstrumentDto>) instruments;
     }
 }

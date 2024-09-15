@@ -1,9 +1,9 @@
 package ru.tuganov.broker
 
+import org.slf4j.LoggerFactory
 import org.springframework.amqp.rabbit.annotation.RabbitListener
 import org.springframework.stereotype.Component
-import ru.tuganov.dto.InstrumentDto
-import ru.tuganov.entities.Instrument
+import ru.tuganov.dto.InstrumentDBDto
 import ru.tuganov.services.InstrumentService
 
 
@@ -11,15 +11,20 @@ import ru.tuganov.services.InstrumentService
 class Receiver (
     private val instrumentService: InstrumentService
 ){
+
+    private val logger = LoggerFactory.getLogger(Receiver::class.java)
     @RabbitListener(queues = ["getInstrumentsQueue"])
-    fun getInstrumentsByChatId(chatId: Long): MutableList<InstrumentDto> = instrumentService.getInstrumentsByChatId(chatId)
+    fun getInstrumentsByChatId(chatId: Long): MutableList<InstrumentDBDto> {
+        logger.info("getInstrumentsByChatId: $chatId")
+        return instrumentService.getInstrumentsByChatId(chatId)
+    }
 
     @RabbitListener(queues = ["getInstrumentQueue"])
-    fun getInstrument(figi: String): Instrument = instrumentService.getInstrumentByFigi(figi)
+    fun getInstrument(instrumentId: Long): InstrumentDBDto = instrumentService.getInstrumentById(instrumentId)
 
     @RabbitListener(queues = ["deleteInstrumentQueue"])
-    fun deleteInstrument(figi: String) = instrumentService.deleteInstrument(figi)
+    fun deleteInstrument(instrumentId: Long) = instrumentService.deleteInstrument(instrumentId)
 
     @RabbitListener(queues = ["saveInstrumentQueue"])
-    fun saveInstrument(instrumentDto: InstrumentDto) = instrumentService.saveInstrument(instrumentDto)
+    fun saveInstrument(instrumentDBDto: InstrumentDBDto) = instrumentService.saveInstrument(instrumentDBDto)
 }

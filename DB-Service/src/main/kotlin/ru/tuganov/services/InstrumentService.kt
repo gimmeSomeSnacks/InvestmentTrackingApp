@@ -1,7 +1,9 @@
 package ru.tuganov.services
 
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
-import ru.tuganov.dto.InstrumentDto
+import org.springframework.transaction.annotation.Transactional
+import ru.tuganov.dto.InstrumentDBDto
 import ru.tuganov.entities.Chat
 import ru.tuganov.entities.Instrument
 import ru.tuganov.repository.InstrumentRepository
@@ -11,42 +13,73 @@ class InstrumentService (
     private val instrumentRepository : InstrumentRepository,
     private val chatService: ChatService
 ){
-    fun getInstrumentsByChatId(chatId: Long): MutableList<InstrumentDto> {
+
+    private val logger = LoggerFactory.getLogger(InstrumentService::class.java)
+    fun getInstrumentsByChatId(chatId: Long): MutableList<InstrumentDBDto> {
         val chat = chatService.getChat(chatId)
+        logger.info("im here dude")
         if (chat == null) {
+            logger.info("No chat found with id $chatId")
             return mutableListOf();
+        } else {
+            return parseListDto(chat.instruments, chatId)
         }
-        return parseDto(chat.instruments, chatId)
     }
 
-    fun parseDto(instuments: List<Instrument>, chatId: Long): MutableList<InstrumentDto> {
-        val instrumentList: MutableList<InstrumentDto> = mutableListOf();
+    fun parseListDto(instuments: List<Instrument>, chatId: Long): MutableList<InstrumentDBDto> {
+        val instrumentList: MutableList<InstrumentDBDto> = mutableListOf();
         for (instrument in instuments) {
-            val instrumentDto = InstrumentDto(chatId,
-                instrument.figi,
-                instrument.minPrice,
-                instrument.maxPrice
-            )
-            instrumentList.add(instrumentDto)
+            instrumentList.add(parseDto(instrument, chatId))
         }
         return instrumentList
     }
 
-    fun saveInstrument(instrumentDto: InstrumentDto) {
-        val chatId = instrumentDto.chatId
+    fun parseDto(instrument: Instrument, chatId: Long): InstrumentDBDto {
+        return InstrumentDBDto(
+            instrument.id,
+            chatId,
+            instrument.figi,
+            instrument.maxPrice,
+            instrument.minPrice
+        )
+    }
+
+    fun saveInstrument(instrumentDBDto: InstrumentDBDto) {
+        logger.info(instrumentDBDto.figi)
+        val chatId = instrumentDBDto.chatId
         var chat = chatService.getChat(chatId)
         if (chat == null) {
-            chat = Chat(instrumentDto.chatId, mutableListOf())
+            chat = Chat(instrumentDBDto.chatId, mutableListOf())
             chatService.saveChat(chat)
         }
-        val instrument = Instrument(instrumentDto.figi,
-                                    instrumentDto.maxPrice,
-                                    instrumentDto.minPrice,
+
+        val instrument = Instrument(instrumentDBDto.figi,
+                                    instrumentDBDto.maxPrice,
+                                    instrumentDBDto.minPrice,
                                     chat)
+        logger.info(instrumentDBDto.instrumentId.toString())
+        if (instrumentDBDto.instrumentId != 0L) {
+            instrument.id = instrumentDBDto.instrumentId
+        }
         instrumentRepository.save(instrument)
     }
 
-    fun getInstrumentByFigi(figi: String): Instrument = instrumentRepository.findInstrumentByFigi(figi)
+    fun getInstrumentById(instrumentId: Long): InstrumentDBDto {
+        val instrument = instrumentRepository.findInstrumentById(instrumentId)
+        return parseDto(instrument, instrument.chat.id)
+    }
 
-    fun deleteInstrument(figi: String) = instrumentRepository.deleteInstrumentByFigi(figi)
+    @Transactional
+    fun deleteInstrument(instrumentId: Long) {
+        logger.info("id DB SERVICE: $instrumentId")
+        val instrument = instrumentRepository.findInstrumentById(instrumentId)
+        val chatId = instrument.chat.id
+        val chat = chatService.getChat(chatId)
+        chat?.instruments?.remove(instrument)
+        if (chat != null) chatService.saveChat(chat)
+
+        instrumentRepository.flush()
+        instrumentRepository.deleteById(instrumentId)
+        logger.info("all instruments in this chat: " + chatService.getChat(chatId)?.instruments?.size)
+    }
 }

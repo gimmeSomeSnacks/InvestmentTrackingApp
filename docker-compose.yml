@@ -1,25 +1,25 @@
 services:
-#  dbservice:
-#    build:
-#      context: /DB-Service
-#      dockerfile: Dockerfile
-#    ports:
-#      - "8081:8081"
-#    depends_on:
-#      - database
-#      - rabbimq
-#  database:
-#    image: postgres:16
-#    container_name: database
-#    ports:
-#      - "5432:5432"
-#    environment:
-#      POSTGRES_USER: "postgres"
-#      POSTGRES_PASSWORD: "privet"
-#      POSTGRES_DB: "investmentDB"
-#    volumes:
-#      - db-data:/var/lib/postgresql/data
-#    restart: always
+  dbservice:
+    build:
+      context: /DB-Service
+      dockerfile: Dockerfile
+    ports:
+      - "8081:8081"
+    depends_on:
+      - database
+      - rabbimq
+  database:
+    image: postgres:16
+    container_name: database
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "privet"
+      POSTGRES_DB: "investmentDB"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    restart: always
   investmentservice:
     build:
       context: /Investment-Service
@@ -47,8 +47,10 @@ services:
       RABBITMQ_DEFAULT_PASS: "privet"
     volumes:
       - rabbitmq-data:/var/lib/rabbitmq/data
+      - rabbitmq-logs:/var/lib/rabbitmq
     restart: always
 
 volumes:
   db-data: {}
   rabbitmq-data: {}
+  rabbitmq-logs: {}

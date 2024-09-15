@@ -17,7 +17,7 @@ public class AddInstrumentCallBack implements ContextCallBackHandler {
     @Override
     public SendMessage handle(Update update, Map<Long, String> userContext) {
         var callBack = update.getCallbackQuery();
-        log.info(callBack.getData());
+        log.info("addButton pressed! data: " + callBack.getData());
         var chatId = callBack.getMessage().getChatId();
         userContext.put(chatId, "getInstruments");
         //ставлю контекст для ввода с клавы

@@ -6,6 +6,5 @@ import ru.tuganov.entities.Instrument
 
 @Repository
 interface InstrumentRepository: JpaRepository<Instrument, Long> {
-    fun findInstrumentByFigi(figi: String): Instrument
-    fun deleteInstrumentByFigi(figi: String)
+    fun findInstrumentById(id: Long): Instrument
 }
