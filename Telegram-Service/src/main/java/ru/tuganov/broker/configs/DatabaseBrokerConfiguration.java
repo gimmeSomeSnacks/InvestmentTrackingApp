@@ -27,6 +27,9 @@ public class DatabaseBrokerConfiguration {
     public Queue getInstrumentsQueue() { return new Queue("getInstrumentsQueue", false); }
 
     @Bean
+    public Queue getAllInstrumentsQueue() { return new Queue("getAllInstrumentsQueue", false); }
+
+    @Bean
     public DirectExchange saveInstrumentExchange() {
         return new DirectExchange("saveInstrumentExchange");
     }
@@ -47,6 +50,9 @@ public class DatabaseBrokerConfiguration {
     }
 
     @Bean
+    public DirectExchange getAllInstrumentsExchange() { return new DirectExchange("getAllInstrumentsExchange"); }
+
+    @Bean
     public Binding saveInstrumentBinding(Queue saveInstrumentQueue, DirectExchange saveInstrumentExchange) {
         return BindingBuilder.bind(saveInstrumentQueue).to(saveInstrumentExchange).with("saveInstrument");
     }
@@ -64,6 +70,11 @@ public class DatabaseBrokerConfiguration {
     @Bean
     public Binding getInstrumentsBinding(Queue getInstrumentsQueue, DirectExchange getInstrumentsExchange) {
         return BindingBuilder.bind(getInstrumentsQueue).to(getInstrumentsExchange).with("getInstruments");
+    }
+
+    @Bean
+    public Binding getAllInstrumentsBinding(Queue getAllInstrumentsQueue, DirectExchange getAllInstrumentsExchange) {
+        return BindingBuilder.bind(getAllInstrumentsQueue).to(getAllInstrumentsExchange).with("getAllInstruments");
     }
 
     @Bean

@@ -22,22 +22,22 @@ class InstrumentService (
             logger.info("No chat found with id $chatId")
             return mutableListOf();
         } else {
-            return parseListDto(chat.instruments, chatId)
+            return parseListDto(chat.instruments)
         }
     }
 
-    fun parseListDto(instuments: List<Instrument>, chatId: Long): MutableList<InstrumentDBDto> {
+    fun parseListDto(instuments: List<Instrument>): MutableList<InstrumentDBDto> {
         val instrumentList: MutableList<InstrumentDBDto> = mutableListOf();
         for (instrument in instuments) {
-            instrumentList.add(parseDto(instrument, chatId))
+            instrumentList.add(parseDto(instrument))
         }
         return instrumentList
     }
 
-    fun parseDto(instrument: Instrument, chatId: Long): InstrumentDBDto {
+    fun parseDto(instrument: Instrument): InstrumentDBDto {
         return InstrumentDBDto(
             instrument.id,
-            chatId,
+            instrument.chat.id,
             instrument.figi,
             instrument.maxPrice,
             instrument.minPrice
@@ -66,7 +66,7 @@ class InstrumentService (
 
     fun getInstrumentById(instrumentId: Long): InstrumentDBDto {
         val instrument = instrumentRepository.findInstrumentById(instrumentId)
-        return parseDto(instrument, instrument.chat.id)
+        return parseDto(instrument)
     }
 
     @Transactional
@@ -82,4 +82,6 @@ class InstrumentService (
         instrumentRepository.deleteById(instrumentId)
         logger.info("all instruments in this chat: " + chatService.getChat(chatId)?.instruments?.size)
     }
+
+    fun getAllInstruments(): MutableList<InstrumentDBDto> = parseListDto(instrumentRepository.findAll())
 }

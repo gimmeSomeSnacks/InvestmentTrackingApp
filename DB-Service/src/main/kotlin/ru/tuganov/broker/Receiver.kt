@@ -27,4 +27,7 @@ class Receiver (
 
     @RabbitListener(queues = ["saveInstrumentQueue"])
     fun saveInstrument(instrumentDBDto: InstrumentDBDto) = instrumentService.saveInstrument(instrumentDBDto)
+
+    @RabbitListener(queues = ["getAllInstrumentsQueue"])
+    fun getAllInstruments(text: String): MutableList<InstrumentDBDto> = instrumentService.getAllInstruments()
 }

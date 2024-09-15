@@ -18,16 +18,16 @@ public class DatabaseSender {
     private final DirectExchange getInstrumentExchange;
     private final DirectExchange deleteInstrumentExchange;
     private final DirectExchange getInstrumentsExchange;
+    private final DirectExchange getAllInstrumentsExchange;
 
     public List<InstrumentDBDto> getInstruments(Long chatId) {
         var instruments = rabbitTemplate.convertSendAndReceive(getInstrumentsExchange.getName(), "getInstruments", chatId);
         try {
-            Thread.sleep(1000);
+            Thread.sleep(2000);
         } catch (InterruptedException e) {
             log.error(e.getMessage());
         }
         if (instruments != null) {
-            log.info("Instruments received");
             return (List<InstrumentDBDto>) instruments;
         }
         log.info("No instruments received");
@@ -49,5 +49,15 @@ public class DatabaseSender {
             return (InstrumentDBDto) instrument;
         }
         return null;
+    }
+
+    public List<InstrumentDBDto> getAllInstruments() {
+        var instruments = (List<InstrumentDBDto>) rabbitTemplate.convertSendAndReceive(getAllInstrumentsExchange.getName(), "getAllInstruments", "text");
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            log.error(e.getMessage());
+        }
+        return instruments;
     }
 }

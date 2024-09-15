@@ -2,8 +2,10 @@ package ru.tuganov.bot;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -12,8 +14,13 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.tuganov.bot.handlers.CallBacksHandler;
 import ru.tuganov.bot.handlers.CommandHandler;
 import ru.tuganov.bot.handlers.ContextHandler;
+import ru.tuganov.dto.InstrumentDBDto;
+import ru.tuganov.investment.AchievedInstrument;
+import ru.tuganov.investment.InstrumentObserver;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Component
@@ -30,7 +37,10 @@ public class TelegramBot extends TelegramLongPollingBot {
     private final CallBacksHandler callBacksHandler;
     private final ContextHandler contextHandler;
 
-    private Map<Long, String> userContext = new HashMap<>();
+    @NonFinal
+    private final Map<Long, String> userContext = new HashMap<>();
+    @NonFinal
+    public final static List<AchievedInstrument> achievedInstruments = new ArrayList<>();
 
     @Override
     public void onUpdateReceived(Update update) {
@@ -50,6 +60,14 @@ public class TelegramBot extends TelegramLongPollingBot {
         } else {
             log.info("nothing");
         }
+        if (!achievedInstruments.isEmpty()) {
+
+        }
+    }
+
+    @Override
+    public String getBotUsername() {
+        return botName;
     }
 
     public void sendMessage(SendMessage message) {
@@ -60,9 +78,15 @@ public class TelegramBot extends TelegramLongPollingBot {
         }
     }
 
-    @Override
-    public String getBotUsername() {
-        return botName;
-    }
 
+    @Scheduled(fixedRateString = "${scheduling.fixed-rate}")
+    private void checkAchievedInstruments() {
+        if (!achievedInstruments.isEmpty()) {
+            for (var instrument : achievedInstruments) {
+                var newMessage = new SendMessage(instrument.chatId().toString(), "ТЕКСТ Я ПРИДУМАЮ NEGRO");
+                sendMessage(newMessage);
+            }
+            achievedInstruments.clear();
+        }
+    }
 }
