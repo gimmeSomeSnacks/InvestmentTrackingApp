@@ -2,9 +2,9 @@ package ru.tuganov.dto
 
 class InstrumentDBDto(
     val instrumentId: Long = 0L,
-    val chatId: Long = 0,
+    val chatId: Long = 0L,
     val figi: String = "",
-    val maxPrice: Double = 0.0,
-    val minPrice: Double = 0.0
+    val sellPrice: Double = 0.0,
+    val buyPrice: Double = 0.0
 ) {
 }

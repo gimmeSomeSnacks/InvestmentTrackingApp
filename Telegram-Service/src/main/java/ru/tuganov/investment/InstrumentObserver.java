@@ -23,7 +23,7 @@ public class InstrumentObserver {
     private final DatabaseSender databaseSender;
     private final InvestmentSender investmentSender;
 
-    @Scheduled(fixedRateString = "${scheduling.fixed-rate}")
+//    @Scheduled(fixedRateString = "${scheduling.fixed-rate}")
     private void checkInstrumentsPrices() {
         var instruments = databaseSender.getAllInstruments();
         if (instruments == null) {
@@ -55,13 +55,31 @@ public class InstrumentObserver {
     }
 
     private void checkPrice(InstrumentDBDto instrumentDBDto) {
-        var fixedPrice = instrumentDBDto.getMaxPrice() + instrumentDBDto.getMinPrice();
+
         var figi = instrumentDBDto.getFigi();
         var instrument = investmentSender.getInstrument(figi);
-        var currentPrice = instrument.price();
 
-        if (instrumentDBDto.getMinPrice() == 0 && fixedPrice < currentPrice ||
-                instrumentDBDto.getMaxPrice() == 0 && fixedPrice > currentPrice) {
+        var fixedSellPrice = instrumentDBDto.getSellPrice();
+        var fixedBuyPrice = instrumentDBDto.getBuyPrice();
+
+        var currentSellPrice = instrument.sellPrice();
+        var currentBuyPrice = instrument.buyPrice();
+
+        var fixedPrice = 0D;
+        var currentPrice = 0D;
+        var achieved = false;
+        if (fixedSellPrice <= currentSellPrice) {
+            achieved = true;
+            fixedPrice = fixedSellPrice;
+            currentPrice = currentSellPrice;
+
+        } else if (fixedBuyPrice >= currentBuyPrice) {
+            achieved = true;
+            fixedPrice = fixedBuyPrice;
+            currentPrice = currentBuyPrice;
+        }
+
+        if (achieved) {
             var achievedInstrument = new AchievedInstrument(
                     instrumentDBDto.getInstrumentId(),
                     instrumentDBDto.getChatId(),

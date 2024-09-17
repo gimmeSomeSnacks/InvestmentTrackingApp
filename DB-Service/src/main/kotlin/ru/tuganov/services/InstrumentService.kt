@@ -39,13 +39,13 @@ class InstrumentService (
             instrument.id,
             instrument.chat.id,
             instrument.figi,
-            instrument.maxPrice,
-            instrument.minPrice
+            instrument.sellPrice,
+            instrument.buyPrice
         )
     }
 
-    fun saveInstrument(instrumentDBDto: InstrumentDBDto) {
-        logger.info(instrumentDBDto.figi)
+    fun saveInstrument(instrumentDBDto: InstrumentDBDto): Long {
+//        logger.info(instrumentDBDto.figi)
         val chatId = instrumentDBDto.chatId
         var chat = chatService.getChat(chatId)
         if (chat == null) {
@@ -54,14 +54,16 @@ class InstrumentService (
         }
 
         val instrument = Instrument(instrumentDBDto.figi,
-                                    instrumentDBDto.maxPrice,
-                                    instrumentDBDto.minPrice,
+                                    instrumentDBDto.sellPrice,
+                                    instrumentDBDto.buyPrice,
                                     chat)
-        logger.info(instrumentDBDto.instrumentId.toString())
+//        logger.info(instrumentDBDto.instrumentId.toString())
         if (instrumentDBDto.instrumentId != 0L) {
             instrument.id = instrumentDBDto.instrumentId
         }
         instrumentRepository.save(instrument)
+        logger.info("id: " + instrument.id)
+        return instrument.id
     }
 
     fun getInstrumentById(instrumentId: Long): InstrumentDBDto {

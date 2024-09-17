@@ -22,26 +22,28 @@ public class GetUsersInstrumentsCallBack implements CallBackHandler {
     private final DatabaseSender databaseSender;
     private final InvestmentSender investmentSender;
 
+    //получаем список всех инструментов пользователя
     @Override
     public SendMessage handle(Update update) {
+        log.info("список инструментов:");
         var instrumentDBDto = databaseSender.getInstruments(update.getCallbackQuery().getMessage().getChatId());
         var usersInstruments = parserDto(instrumentDBDto);
         var message = new SendMessage(String.valueOf(update.getCallbackQuery().getMessage().getChatId()), Message.instrumentList);
-        InstrumentsMarkup.addInstruments(message, usersInstruments, "simpleGUS");
+        InstrumentsMarkup.addInstruments(message, usersInstruments, "simpleGUSi");
         return message;
     }
 
+    //меняем формат DTO, чтобы можно было отобразить весь список
     private List<InstrumentDto> parserDto(List<InstrumentDBDto> instrumentDBDtoList) {
         List<InstrumentDto> usersInstruments = new ArrayList<>();
         if (instrumentDBDtoList != null) {
             for (InstrumentDBDto instrumentDBDto : instrumentDBDtoList) {
                 var instrumentId = instrumentDBDto.getInstrumentId();
-//                log.info("list of instruments: {}", instrumentId);
                 var instrument = investmentSender.getInstrument(instrumentDBDto.getFigi());
                 usersInstruments.add(new InstrumentDto(instrument.name(),
-                                                        "id" + instrumentId,
-                                                    instrumentDBDto.getMaxPrice()
-                                                            + instrumentDBDto.getMinPrice()));
+                        instrumentId.toString(),
+                        instrumentDBDto.getBuyPrice(),
+                        instrumentDBDto.getSellPrice()));
             }
         }
         return usersInstruments;

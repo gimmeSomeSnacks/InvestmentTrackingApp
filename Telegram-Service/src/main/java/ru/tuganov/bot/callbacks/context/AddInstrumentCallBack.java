@@ -14,10 +14,11 @@ import java.util.Map;
 @Slf4j
 public class AddInstrumentCallBack implements ContextCallBackHandler {
     //нажимаем в menu кнопку add - отзыв на кнопку => ставим контекст на добавление и ждем клаву
+    //ждем пока введут название акции
     @Override
     public SendMessage handle(Update update, Map<Long, String> userContext) {
         var callBack = update.getCallbackQuery();
-        log.info("addButton pressed! data: " + callBack.getData());
+        log.info("addButton pressed! data: {}", callBack.getData());
         var chatId = callBack.getMessage().getChatId();
         userContext.put(chatId, "getInstruments");
         //ставлю контекст для ввода с клавы

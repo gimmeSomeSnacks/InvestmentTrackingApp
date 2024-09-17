@@ -25,38 +25,50 @@ public class GetUsersInstrumentCallBack implements CallBackHandler {
     @Override
     public SendMessage handle(Update update) {
         var callBack = update.getCallbackQuery();
-        log.info(callBack.getData());
-        var instrumentId = parseLong(callBack.getData().substring("simpleGUSid".length()));
-        var instrumentDB = databaseSender.getInstrument(instrumentId);
-        log.info("info: {} {} {}", instrumentId, instrumentDB.getInstrumentId(), instrumentDB.getFigi());
-        var price = instrumentDB.getMaxPrice() + instrumentDB.getMinPrice();
-        var instrumentInvestment = investmentSender.getInstrument(instrumentDB.getFigi());
-        var message = new SendMessage(String.valueOf(callBack.getMessage().getChatId()),
-                                      String.format(Message.instrumentInfo,
-                                                    instrumentInvestment.name(),
-                                                    instrumentInvestment.price(),
-                                                    price));
-        addInstrumentMenu(message, instrumentId);
-        return message;
+
+        var data = callBack.getData().substring("simpleGUS".length());
+        log.info("один инструмент: " + data); //figi
+        SendMessage sendMessage = new SendMessage();
+        sendMessage.setChatId(String.valueOf(callBack.getMessage().getChatId()));
+        //либо у нас id, либо figi
+        if (data.charAt(0) == 'i') {
+            var instrumentId = parseLong(data.substring(1));
+            var instrumentDB = databaseSender.getInstrument(instrumentId);
+//        log.info("info: {} {} {}", instrumentId, instrumentDB.getInstrumentId(), instrumentDB.getFigi());
+            var instrumentInvestment = investmentSender.getInstrument(instrumentDB.getFigi());
+            sendMessage.setText(String.format(Message.instrumentInfo,
+                                                instrumentInvestment.name(),
+                                                instrumentInvestment.sellPrice(),
+                                                instrumentInvestment.buyPrice(),
+                                                instrumentDB.getSellPrice(),
+                                                instrumentDB.getBuyPrice()));
+        } else {
+            data = 'f' + data;
+            sendMessage.setText(Message.chooseBuyOrSell);
+        }
+
+        addInstrumentMenu(sendMessage, data);
+        return sendMessage;
     }
 
-    private void addInstrumentMenu(SendMessage message, Long instrumentId) {
+    private void addInstrumentMenu(SendMessage message, String data) {
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+        //si/bi - sale/buy instrument - тупо редактирование
+        //кнопки для изменения фиксации цены покупки, продажи или удаления акции вообще
+        InlineKeyboardButton buyButton = new InlineKeyboardButton();
+        buyButton.setText(Message.chooseBuy);
+        buyButton.setCallbackData("contextSNb" + data);
 
-        //кнопка для редактирования запускает ввод
-        InlineKeyboardButton editInstrument = new InlineKeyboardButton();
-        editInstrument.setText(Message.changePrice);
-        editInstrument.setCallbackData("contextEIid" + instrumentId);
+        InlineKeyboardButton sellButton = new InlineKeyboardButton();
+        sellButton.setText(Message.chooseSell);
+        sellButton.setCallbackData("contextSNs" + data);
+
 
         InlineKeyboardButton deleteInstrument = new InlineKeyboardButton();
         deleteInstrument.setText(Message.deleteInstrument);
-        deleteInstrument.setCallbackData("simpleDIC" + instrumentId);
+        deleteInstrument.setCallbackData("simpleDIC" + data);
 
-//        InlineKeyboardButton menuInstrument = new InlineKeyboardButton();
-//        menuInstrument.setText(Message.backCommand);
-//        menuInstrument.setCallbackData("menu");
-
-        List<InlineKeyboardButton> buttons = List.of(editInstrument, deleteInstrument);
+        List<InlineKeyboardButton> buttons = List.of(buyButton, sellButton, deleteInstrument);
         List<List<InlineKeyboardButton>> rows = List.of(buttons);
         inlineKeyboardMarkup.setKeyboard(rows);
 

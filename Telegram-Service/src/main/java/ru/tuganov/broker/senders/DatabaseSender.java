@@ -34,9 +34,9 @@ public class DatabaseSender {
         return null;
     }
 
-    public void saveInstrument(InstrumentDBDto instrument) {
+    public Long saveInstrument(InstrumentDBDto instrument) {
         log.info("second step:{}", instrument.getFigi());
-        rabbitTemplate.convertAndSend(saveInstrumentExchange.getName(), "saveInstrument", instrument);
+        return (Long) rabbitTemplate.convertSendAndReceive(saveInstrumentExchange.getName(), "saveInstrument", instrument);
     }
 
     public void deleteInstrument(Long instrumentId) {

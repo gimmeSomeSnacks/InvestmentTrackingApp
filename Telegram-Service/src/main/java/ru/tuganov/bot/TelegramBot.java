@@ -48,8 +48,8 @@ public class TelegramBot extends TelegramLongPollingBot {
             var message = update.getMessage();
             var chatId = message.getChatId();
             var context = userContext.get(chatId);
-            log.info(update.getMessage().getText());
-            log.info(context == null ? "null" : context);
+//            log.info(update.getMessage().getText());
+//            log.info(context == null ? "null" : context);
             if (context != null && !context.isBlank()) {
                 sendMessage(contextHandler.handle(update, userContext));
             } else {

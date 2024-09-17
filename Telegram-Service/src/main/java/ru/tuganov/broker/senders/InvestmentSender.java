@@ -26,7 +26,7 @@ public class InvestmentSender {
     public ArrayList<InstrumentDto> getInstruments(String instrumentQuery) {
         var instruments = rabbitTemplate.convertSendAndReceive(instrumentListExchange.getName(), "instrumentList", instrumentQuery);
         try {
-            Thread.sleep(1000);
+            Thread.sleep(3000);
         } catch (Exception e) {
             log.error(e.getMessage());
         }

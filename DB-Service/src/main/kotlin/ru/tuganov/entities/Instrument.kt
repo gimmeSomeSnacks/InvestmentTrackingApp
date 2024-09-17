@@ -7,8 +7,8 @@ import jakarta.persistence.*
 @Table(name = "instruments")
 class Instrument (
     val figi: String,
-    val maxPrice: Double,
-    val minPrice: Double,
+    val sellPrice: Double,
+    val buyPrice: Double,
     @ManyToOne
     @JoinColumn(name = "chat_id")
     val chat: Chat,

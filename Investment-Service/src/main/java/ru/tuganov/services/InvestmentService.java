@@ -3,6 +3,7 @@ package ru.tuganov.services;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.tinkoff.piapi.contract.v1.GetOrderBookResponse;
 import ru.tinkoff.piapi.contract.v1.InstrumentShort;
 import ru.tinkoff.piapi.contract.v1.SecurityTradingStatus;
 import ru.tinkoff.piapi.core.InstrumentsService;
@@ -37,13 +38,30 @@ public class InvestmentService {
             isAvailable == SecurityTradingStatus.SECURITY_TRADING_STATUS_BREAK_IN_TRADING ||
             isAvailable == SecurityTradingStatus.SECURITY_TRADING_STATUS_DEALER_BREAK_IN_TRADING ||
             isAvailable == SecurityTradingStatus.SECURITY_TRADING_STATUS_DEALER_NORMAL_TRADING) {
-            var priceee = instrumentsService.getInstrumentByFigi(figi).join();
-            var price = marketDataService.getLastPrices(List.of(figi)).join().getFirst().getPrice();
-            if (price.getUnits() != 0) {
-                return new InstrumentDto(instrumentShort.getName(),
-                        instrumentShort.getFigi(),
-                        price.getUnits());
+            GetOrderBookResponse orderBook = marketDataService.getOrderBook(figi, 1).join();
+//            log.info("asks count: {}", orderBook.getAsksCount());
+//            try {
+//                Thread.sleep(2000);
+//            } catch (Exception e) {
+//                log.info(e.getMessage());
+//            }
+            if (orderBook != null && !orderBook.getAsksList().isEmpty()) {
+                log.info("size: {}, name: {}", orderBook.getAsksList().size(), instrumentShort.getName());
+                var sellPrice = orderBook.getAsks(0).getPrice().getUnits();
+                var buyPrice = orderBook.getBids(0).getPrice().getSerializedSize();
+                if (sellPrice != 0 && buyPrice != 0) {
+                    return new InstrumentDto(instrumentShort.getName(),
+                            instrumentShort.getFigi(),
+                            sellPrice,
+                            buyPrice);
+                }
             }
+//            var price = marketDataService.getLastPrices(List.of(figi)).join().getFirst().getPrice();
+//            if (price.getUnits() != 0) {
+//                return new InstrumentDto(instrumentShort.getName(),
+//                        instrumentShort.getFigi(),
+//                        price.getUnits());
+//            }
         }
         return null;
         //price.getNano() выдаст еще допом дробную часть, но пока что рано
@@ -57,7 +75,6 @@ public class InvestmentService {
                 instrumentDtos.add(instrumentDto);
             }
         }
-        log.info("size: {}", instrumentDtos.size());
         return instrumentDtos;
     }
 

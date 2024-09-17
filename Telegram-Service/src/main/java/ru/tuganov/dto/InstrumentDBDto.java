@@ -10,9 +10,9 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class InstrumentDBDto {
+    private Long instrumentId;
     private Long chatId;
     private String figi;
-    private Double maxPrice;
-    private Double minPrice;
-    private Long instrumentId;
+    private Double sellPrice;
+    private Double buyPrice;
 }

@@ -26,9 +26,8 @@ public class GetInstruments implements InputHandler{
         }
         var sendMessage = new SendMessage(String.valueOf(chatId), Message.chooseInstrument);
         //нам выдает список доступных акций, доступно только фиги, нет никаких id пока что
-        InstrumentsMarkup.addInstruments(sendMessage, instrumentList, "contextEI");
-        log.info("get instruments from investment!");
-        userContext.put(chatId, "saveInstrument");
+        InstrumentsMarkup.addInstruments(sendMessage, instrumentList, "simpleGUS");
+        log.info("вписал список акций и получил их");
         return sendMessage;
     }
 }

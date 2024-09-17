@@ -8,7 +8,7 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.tuganov.bot.messages.GetInstruments;
 import ru.tuganov.bot.messages.InputHandler;
-import ru.tuganov.bot.messages.SaveInstrument;
+import ru.tuganov.bot.messages.EditInstrument;
 import ru.tuganov.bot.utils.Message;
 import ru.tuganov.broker.senders.DatabaseSender;
 import ru.tuganov.broker.senders.InvestmentSender;
@@ -27,7 +27,7 @@ public class ContextHandler {
     @PostConstruct
     public void init() {
         inputHandlers = Map.of(
-                "saveInstrument", new SaveInstrument(databaseSender, investmentSender),
+                "saveInstrument", new EditInstrument(databaseSender),
                 "getInstruments", new GetInstruments(investmentSender)
         );
     }

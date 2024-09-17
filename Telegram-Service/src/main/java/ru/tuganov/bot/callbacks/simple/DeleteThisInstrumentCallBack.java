@@ -20,7 +20,7 @@ public class DeleteThisInstrumentCallBack implements CallBackHandler {
     public SendMessage handle(Update update) {
         var callBack = update.getCallbackQuery();
         var instrument = callBack.getData();
-        var instrumentId = instrument.substring("simpleDIC".length());
+        var instrumentId = instrument.substring("simpleDICi".length());
         log.info("deleted: {}", instrumentId);
         try {
             Thread.sleep(5000);
