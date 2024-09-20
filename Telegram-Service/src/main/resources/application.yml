@@ -8,6 +8,6 @@ spring:
         password: privet
 bot:
     name: "InvestmentNotificationBot"
-    token: "7402051299:AAGgNIrpivh1h6C5EDDPcU_Z5Ce-yi_yTmo"
+    token: "${TOKEN}"
 scheduling:
     fixed-rate: 300000
