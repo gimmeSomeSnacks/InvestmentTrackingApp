@@ -5,6 +5,7 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import ru.tuganov.dto.InstrumentDto;
+import ru.tuganov.dto.MarkupDataDto;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,7 +20,6 @@ public class InstrumentsMarkup {
             InlineKeyboardButton instrumentButton = new InlineKeyboardButton();
             instrumentButton.setText(instruments.get(i).name());
             instrumentButton.setCallbackData(dataText + instruments.get(i).figi());
-            log.info("list: " + dataText +" " + instruments.get(i).figi());
             buttons.add(instrumentButton);
             if (i % 5 == 0) {
                 rows.add(buttons);
@@ -31,31 +31,17 @@ public class InstrumentsMarkup {
         sendMessage.setReplyMarkup(inlineKeyboardMarkup);
     }
 
-    public static void setMenu(SendMessage sendMessage, String type, long data) {
+    public static void setMenu(SendMessage sendMessage, List<MarkupDataDto> markupDataDtoList) {
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
         List<InlineKeyboardButton> buttons = new ArrayList<>();
         List<List<InlineKeyboardButton>> rows = new ArrayList<>();
 
-        switch (type) {
-            case "sf" -> {
-                InlineKeyboardButton buyButton = new InlineKeyboardButton();
-                buyButton.setText(Message.chooseBuy);
-                buyButton.setCallbackData("contextSPbi" + data);
-                buttons.add(buyButton);
-            }
-            case "bf" -> {
-                InlineKeyboardButton sellButton = new InlineKeyboardButton();
-                sellButton.setText(Message.chooseSell);
-                sellButton.setCallbackData("contextSPsi" + data);
-                buttons.add(sellButton);
-            }
+        for (MarkupDataDto markupDataDto : markupDataDtoList) {
+            InlineKeyboardButton button = new InlineKeyboardButton();
+            button.setText(markupDataDto.text());
+            button.setCallbackData(markupDataDto.callBackData());
+            buttons.add(button);
         }
-
-        InlineKeyboardButton saveButton = new InlineKeyboardButton();
-        saveButton.setText(Message.changePrice);
-        saveButton.setCallbackData(".........." + data);
-        buttons.add(saveButton);
-
 
         rows.add(buttons);
         inlineKeyboardMarkup.setKeyboard(rows);

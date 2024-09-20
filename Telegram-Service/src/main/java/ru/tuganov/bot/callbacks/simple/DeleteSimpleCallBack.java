@@ -1,7 +1,6 @@
 package ru.tuganov.bot.callbacks.simple;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -12,8 +11,7 @@ import static java.lang.Long.parseLong;
 
 @Component
 @RequiredArgsConstructor
-@Slf4j
-public class DeleteThisInstrumentCallBack implements CallBackHandler {
+public class DeleteSimpleCallBack implements SimpleCallBack {
     private final DatabaseSender databaseSender;
 
     @Override
@@ -21,13 +19,14 @@ public class DeleteThisInstrumentCallBack implements CallBackHandler {
         var callBack = update.getCallbackQuery();
         var instrument = callBack.getData();
         var instrumentId = instrument.substring("simpleDICi".length());
-        log.info("deleted: {}", instrumentId);
-        try {
-            Thread.sleep(5000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        var isDeleted = databaseSender.deleteInstrument(parseLong(instrumentId));
+        SendMessage sendMessage = new SendMessage();
+        sendMessage.setChatId(String.valueOf(callBack.getMessage().getChatId()));
+        if (isDeleted) {
+            sendMessage.setText(Message.instrumentDeleted);
+        } else {
+            sendMessage.setText(Message.deletedError);
         }
-        databaseSender.deleteInstrument(parseLong(instrumentId));
-        return new SendMessage(String.valueOf(callBack.getMessage().getChatId()), Message.instrumentDeleted);
+        return sendMessage;
     }
 }

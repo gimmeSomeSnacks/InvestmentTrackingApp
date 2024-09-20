@@ -2,32 +2,28 @@ package ru.tuganov.bot.handlers;
 
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.tuganov.bot.messages.GetInstruments;
-import ru.tuganov.bot.messages.InputHandler;
-import ru.tuganov.bot.messages.EditInstrument;
+import ru.tuganov.bot.messages.EditPrice;
 import ru.tuganov.bot.utils.Message;
 import ru.tuganov.broker.senders.DatabaseSender;
 import ru.tuganov.broker.senders.InvestmentSender;
 
 import java.util.Map;
 
-//хендлер сообщений ввода (по сути цена/название акций)
 @Component
 @RequiredArgsConstructor
-@Slf4j
-public class ContextHandler {
+public class MessageHandler {
     private final DatabaseSender databaseSender;
     private final InvestmentSender investmentSender;
 
-    private Map<String, InputHandler> inputHandlers;
+    private Map<String, ru.tuganov.bot.messages.MessageHandler> inputHandlers;
     @PostConstruct
     public void init() {
         inputHandlers = Map.of(
-                "saveInstrument", new EditInstrument(databaseSender),
+                "saveInstrument", new EditPrice(databaseSender),
                 "getInstruments", new GetInstruments(investmentSender)
         );
     }
@@ -36,8 +32,7 @@ public class ContextHandler {
         var message = update.getMessage();
         var chatId = message.getChatId();
         var context = userContext.get(chatId);
-        log.info("context: {}", context);
-        if (context.isEmpty() || context == null) {
+        if (context == null || context.isEmpty()) {
             return new SendMessage(String.valueOf(chatId), Message.unknownCommand);
         } else {
             return inputHandlers.get(context.substring(0, "saveInstrument".length())).handle(update, userContext);

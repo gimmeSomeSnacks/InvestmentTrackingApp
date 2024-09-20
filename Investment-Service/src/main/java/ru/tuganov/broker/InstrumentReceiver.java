@@ -1,17 +1,15 @@
 package ru.tuganov.broker;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import ru.tuganov.dto.InstrumentDto;
 import ru.tuganov.services.InvestmentService;
 
 import java.util.ArrayList;
 
+@Service
 @RequiredArgsConstructor
-@Slf4j
-@Component
 public class InstrumentReceiver {
     private final InvestmentService investmentService;
 
@@ -22,7 +20,6 @@ public class InstrumentReceiver {
 
     @RabbitListener(queues = "instrumentListQueue")
     public ArrayList<InstrumentDto> getInstrumentList(String instrumentQuery) {
-        log.info("getInstrumentList: {}", instrumentQuery);
         return investmentService.getInstruments(instrumentQuery);
     }
 }

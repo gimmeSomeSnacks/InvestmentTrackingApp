@@ -18,22 +18,25 @@ import java.util.List;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class GetUsersInstrumentsCallBack implements CallBackHandler {
+public class GetInstrumentsSimpleCallBack implements SimpleCallBack {
     private final DatabaseSender databaseSender;
     private final InvestmentSender investmentSender;
 
-    //получаем список всех инструментов пользователя
     @Override
     public SendMessage handle(Update update) {
-        log.info("список инструментов:");
         var instrumentDBDto = databaseSender.getInstruments(update.getCallbackQuery().getMessage().getChatId());
-        var usersInstruments = parserDto(instrumentDBDto);
-        var message = new SendMessage(String.valueOf(update.getCallbackQuery().getMessage().getChatId()), Message.instrumentList);
-        InstrumentsMarkup.addInstruments(message, usersInstruments, "simpleGUSi");
-        return message;
+        SendMessage sendMessage = new SendMessage();
+        sendMessage.setChatId(String.valueOf(update.getCallbackQuery().getMessage().getChatId()));
+        if (instrumentDBDto == null || instrumentDBDto.isEmpty()) {
+            sendMessage.setText(Message.noInstruments);
+        } else {
+            var usersInstruments = parserDto(instrumentDBDto);
+            sendMessage.setText(Message.instrumentList);
+            InstrumentsMarkup.addInstruments(sendMessage, usersInstruments, "simpleGUSi");
+        }
+        return sendMessage;
     }
 
-    //меняем формат DTO, чтобы можно было отобразить весь список
     private List<InstrumentDto> parserDto(List<InstrumentDBDto> instrumentDBDtoList) {
         List<InstrumentDto> usersInstruments = new ArrayList<>();
         if (instrumentDBDtoList != null) {

@@ -5,6 +5,6 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 
 import java.util.Map;
 
-public interface InputHandler {
+public interface MessageHandler {
     SendMessage handle(Update update, Map<Long, String> userContext);
 }

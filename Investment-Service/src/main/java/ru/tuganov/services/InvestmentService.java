@@ -32,23 +32,20 @@ public class InvestmentService {
 
     private InstrumentDto dtoParser(InstrumentShort instrumentShort) {
         var figi = instrumentShort.getFigi();
-        var isAvailable = instrumentsService.getInstrumentByFigi(figi).join().getTradingStatus();
-//        log.info("status: {}", isAvailable);
-        if (isAvailable == SecurityTradingStatus.SECURITY_TRADING_STATUS_NORMAL_TRADING ||
-            isAvailable == SecurityTradingStatus.SECURITY_TRADING_STATUS_BREAK_IN_TRADING ||
-            isAvailable == SecurityTradingStatus.SECURITY_TRADING_STATUS_DEALER_BREAK_IN_TRADING ||
-            isAvailable == SecurityTradingStatus.SECURITY_TRADING_STATUS_DEALER_NORMAL_TRADING) {
+        var instrument = instrumentsService.getInstrumentByFigi(figi).join();
+        var status = instrument.getTradingStatus();
+        var type = instrument.getInstrumentType();
+        if (type.equals("share") && figi.startsWith("BBG") && (status == SecurityTradingStatus.SECURITY_TRADING_STATUS_NORMAL_TRADING ||
+            status == SecurityTradingStatus.SECURITY_TRADING_STATUS_BREAK_IN_TRADING ||
+            status == SecurityTradingStatus.SECURITY_TRADING_STATUS_DEALER_BREAK_IN_TRADING ||
+            status == SecurityTradingStatus.SECURITY_TRADING_STATUS_DEALER_NORMAL_TRADING)) {
             GetOrderBookResponse orderBook = marketDataService.getOrderBook(figi, 1).join();
-//            log.info("asks count: {}", orderBook.getAsksCount());
-//            try {
-//                Thread.sleep(2000);
-//            } catch (Exception e) {
-//                log.info(e.getMessage());
-//            }
             if (orderBook != null && !orderBook.getAsksList().isEmpty()) {
-                log.info("size: {}, name: {}", orderBook.getAsksList().size(), instrumentShort.getName());
-                var sellPrice = orderBook.getAsks(0).getPrice().getUnits();
-                var buyPrice = orderBook.getBids(0).getPrice().getSerializedSize();
+                var price = orderBook.getAsks(0).getPrice();
+                var sellPrice = price.getUnits() + price.getNano() / Math.pow(10.0, 9);
+                price = orderBook.getBids(0).getPrice();
+                var buyPrice = price.getUnits() + price.getNano() / Math.pow(10.0, 9);
+                log.info("sell: {}, buy: {}", sellPrice, buyPrice);
                 if (sellPrice != 0 && buyPrice != 0) {
                     return new InstrumentDto(instrumentShort.getName(),
                             instrumentShort.getFigi(),
@@ -56,15 +53,8 @@ public class InvestmentService {
                             buyPrice);
                 }
             }
-//            var price = marketDataService.getLastPrices(List.of(figi)).join().getFirst().getPrice();
-//            if (price.getUnits() != 0) {
-//                return new InstrumentDto(instrumentShort.getName(),
-//                        instrumentShort.getFigi(),
-//                        price.getUnits());
-//            }
         }
         return null;
-        //price.getNano() выдаст еще допом дробную часть, но пока что рано
     }
 
     private ArrayList<InstrumentDto> dtoListParser(List<InstrumentShort> instrumentShorts) {
@@ -77,15 +67,4 @@ public class InvestmentService {
         }
         return instrumentDtos;
     }
-
-
-//    public double getLastPrice(String figi) {
-//        var instrument = marketDataService.getLastPrices(List.of(figi)).join();
-//        var price = instrument.get(0).getPrice();
-//        return price.getUnits() + price.getNano();
-//    }
-
-//    public String getInstrumentName(String instrumentQuery) {
-//        return instrumentsService.findInstrument(instrumentQuery).join().get(0).getName();
-//    }
 }

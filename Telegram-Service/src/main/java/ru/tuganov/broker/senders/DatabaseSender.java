@@ -30,25 +30,20 @@ public class DatabaseSender {
         if (instruments != null) {
             return (List<InstrumentDBDto>) instruments;
         }
-        log.info("No instruments received");
         return null;
     }
 
     public Long saveInstrument(InstrumentDBDto instrument) {
-        log.info("second step:{}", instrument.getFigi());
         return (Long) rabbitTemplate.convertSendAndReceive(saveInstrumentExchange.getName(), "saveInstrument", instrument);
     }
 
-    public void deleteInstrument(Long instrumentId) {
-        rabbitTemplate.convertAndSend(deleteInstrumentExchange.getName(), "deleteInstrument", instrumentId);
+    public Boolean deleteInstrument(Long instrumentId) {
+        return (Boolean) rabbitTemplate.convertSendAndReceive(deleteInstrumentExchange.getName(), "deleteInstrument", instrumentId);
     }
 
     public InstrumentDBDto getInstrument(Long instrumentId) {
         var instrument = rabbitTemplate.convertSendAndReceive(getInstrumentExchange.getName(), "getInstrument", instrumentId);
-        if (instrument != null) {
-            return (InstrumentDBDto) instrument;
-        }
-        return null;
+        return (InstrumentDBDto) instrument;
     }
 
     public List<InstrumentDBDto> getAllInstruments() {

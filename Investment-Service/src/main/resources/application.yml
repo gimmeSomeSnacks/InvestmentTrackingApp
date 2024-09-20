@@ -8,4 +8,3 @@ spring:
         password: privet
 tinkoff:
     token: "t.EfXNQDuWlDs7GLehdE1chdXCz2qzN5wfTPP9mG0a431Y6Q18TrYDAjwNssbF4_TyzI5WL5Sl5JKu7sqSK9yFtQ"
-#    token: "t.FgW0TQCbwfz_32Re8-vXWm2Xx4Gdy_HNy143hP1-TpNX_rcAjM9VlPW8tsFGyeQqEXdCrRdgVuqCVc4ZIYolQw"

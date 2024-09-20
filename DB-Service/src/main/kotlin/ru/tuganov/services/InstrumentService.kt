@@ -13,13 +13,9 @@ class InstrumentService (
     private val instrumentRepository : InstrumentRepository,
     private val chatService: ChatService
 ){
-
-    private val logger = LoggerFactory.getLogger(InstrumentService::class.java)
     fun getInstrumentsByChatId(chatId: Long): MutableList<InstrumentDBDto> {
         val chat = chatService.getChat(chatId)
-        logger.info("im here dude")
         if (chat == null) {
-            logger.info("No chat found with id $chatId")
             return mutableListOf();
         } else {
             return parseListDto(chat.instruments)
@@ -45,7 +41,6 @@ class InstrumentService (
     }
 
     fun saveInstrument(instrumentDBDto: InstrumentDBDto): Long {
-//        logger.info(instrumentDBDto.figi)
         val chatId = instrumentDBDto.chatId
         var chat = chatService.getChat(chatId)
         if (chat == null) {
@@ -57,24 +52,21 @@ class InstrumentService (
                                     instrumentDBDto.sellPrice,
                                     instrumentDBDto.buyPrice,
                                     chat)
-//        logger.info(instrumentDBDto.instrumentId.toString())
         if (instrumentDBDto.instrumentId != 0L) {
             instrument.id = instrumentDBDto.instrumentId
         }
         instrumentRepository.save(instrument)
-        logger.info("id: " + instrument.id)
         return instrument.id
     }
 
     fun getInstrumentById(instrumentId: Long): InstrumentDBDto {
-        val instrument = instrumentRepository.findInstrumentById(instrumentId)
+        val instrument = instrumentRepository.findInstrumentById(instrumentId) ?: return InstrumentDBDto()
         return parseDto(instrument)
     }
 
     @Transactional
-    fun deleteInstrument(instrumentId: Long) {
-        logger.info("id DB SERVICE: $instrumentId")
-        val instrument = instrumentRepository.findInstrumentById(instrumentId)
+    fun deleteInstrument(instrumentId: Long): Boolean {
+        val instrument = instrumentRepository.findInstrumentById(instrumentId) ?: return false
         val chatId = instrument.chat.id
         val chat = chatService.getChat(chatId)
         chat?.instruments?.remove(instrument)
@@ -82,7 +74,7 @@ class InstrumentService (
 
         instrumentRepository.flush()
         instrumentRepository.deleteById(instrumentId)
-        logger.info("all instruments in this chat: " + chatService.getChat(chatId)?.instruments?.size)
+        return true;
     }
 
     fun getAllInstruments(): MutableList<InstrumentDBDto> = parseListDto(instrumentRepository.findAll())

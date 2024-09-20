@@ -1,18 +1,16 @@
 package ru.tuganov.bot.handlers;
 
-
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.tuganov.bot.commands.Command;
 import ru.tuganov.bot.commands.MenuCommand;
 import ru.tuganov.bot.commands.StartCommand;
+import ru.tuganov.bot.utils.Message;
 
 import java.util.Map;
 
-@Slf4j
-@Component
+@Service
 public class CommandHandler {
     private final Map<String, Command> commands;
 
@@ -23,9 +21,14 @@ public class CommandHandler {
         );
     }
 
-    public SendMessage handleCommands(Update update) {
+    public SendMessage handleCommands(Update update, Map<Long, String> userContext) {
+        userContext.put(update.getMessage().getChatId(), "");
         var messageText = update.getMessage().getText();
         var command = commands.get(messageText.trim());
-        return command.apply(update);
+        if (command == null) {
+            return new SendMessage(String.valueOf(update.getMessage().getChatId()), Message.unknownCommand);
+        } else {
+            return command.apply(update);
+        }
     }
 }

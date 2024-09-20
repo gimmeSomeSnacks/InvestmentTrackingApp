@@ -4,11 +4,16 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import ru.tuganov.bot.TelegramBot;
+import ru.tuganov.bot.utils.Message;
 import ru.tuganov.broker.senders.DatabaseSender;
 import ru.tuganov.broker.senders.InvestmentSender;
 import ru.tuganov.dto.InstrumentDBDto;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -20,10 +25,11 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Slf4j
 public class InstrumentObserver {
+    private final TelegramBot telegramBot;
     private final DatabaseSender databaseSender;
     private final InvestmentSender investmentSender;
 
-//    @Scheduled(fixedRateString = "${scheduling.fixed-rate}")
+    @Scheduled(fixedRateString = "${scheduling.fixed-rate}")
     private void checkInstrumentsPrices() {
         var instruments = databaseSender.getAllInstruments();
         if (instruments == null) {
@@ -52,6 +58,7 @@ public class InstrumentObserver {
         } catch (Exception e) {
             log.error(e.getMessage());
         }
+        checkAchievedInstruments();
     }
 
     private void checkPrice(InstrumentDBDto instrumentDBDto) {
@@ -87,8 +94,33 @@ public class InstrumentObserver {
                     currentPrice,
                     fixedPrice
             );
-            log.info("achieved instrument: {} {}", achievedInstrument.currentPrice(), achievedInstrument.fixedPrice());
             TelegramBot.achievedInstruments.add(achievedInstrument);
+        }
+    }
+
+    private void checkAchievedInstruments() {
+        if (!TelegramBot.achievedInstruments.isEmpty()) {
+            for (var achievedInstrument : TelegramBot.achievedInstruments) {
+                var instrument = investmentSender.getInstrument(achievedInstrument.figi());
+                var sendMessage = new SendMessage(achievedInstrument.chatId().toString(),
+                        String.format(Message.achievedInstrument, instrument.name()));
+
+                InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+                List<InlineKeyboardButton> buttons = new ArrayList<>();
+                List<List<InlineKeyboardButton>> rows = new ArrayList<>();
+
+                InlineKeyboardButton getInstrument = new InlineKeyboardButton();
+                getInstrument.setText(Message.getInstrument);
+                getInstrument.setCallbackData("simpleGUSi" + achievedInstrument.id());
+                buttons.add(getInstrument);
+
+                rows.add(buttons);
+                inlineKeyboardMarkup.setKeyboard(rows);
+                sendMessage.setReplyMarkup(inlineKeyboardMarkup);
+
+                telegramBot.sendMessage(sendMessage);
+            }
+            TelegramBot.achievedInstruments.clear();
         }
     }
 }
