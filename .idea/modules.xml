@@ -3,7 +3,6 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/Investment-Tracking-App.iml" filepath="$PROJECT_DIR$/Investment-Tracking-App.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/Telegram-Service.main.iml" filepath="$PROJECT_DIR$/.idea/modules/Telegram-Service.main.iml" />
     </modules>
   </component>
 </project>

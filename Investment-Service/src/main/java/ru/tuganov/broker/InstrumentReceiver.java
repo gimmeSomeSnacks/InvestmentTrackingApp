@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Service;
 import ru.tuganov.dto.InstrumentDto;
+import ru.tuganov.dto.PricesDto;
 import ru.tuganov.services.InvestmentService;
 
 import java.util.ArrayList;
@@ -21,5 +22,10 @@ public class InstrumentReceiver {
     @RabbitListener(queues = "instrumentListQueue")
     public ArrayList<InstrumentDto> getInstrumentList(String instrumentQuery) {
         return investmentService.getInstruments(instrumentQuery);
+    }
+
+    @RabbitListener(queues = "instrumentPricesQueue")
+    public ArrayList<PricesDto> getInstrumentPrices(String instrumentQuery) {
+        return investmentService.getInstrumentPrices(instrumentQuery);
     }
 }

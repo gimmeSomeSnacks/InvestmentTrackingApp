@@ -8,13 +8,19 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+import ru.tuganov.bot.callbacks.simple.GetInstrumentSimpleCallBack;
 import ru.tuganov.bot.handlers.CallBackHandler;
 import ru.tuganov.bot.handlers.CommandHandler;
 import ru.tuganov.bot.handlers.MessageHandler;
+import ru.tuganov.bot.utils.Message;
+import ru.tuganov.broker.senders.DatabaseSender;
+import ru.tuganov.broker.senders.InvestmentSender;
 import ru.tuganov.investment.AchievedInstrument;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -33,6 +39,8 @@ public class TelegramBot extends TelegramLongPollingBot {
     private final CommandHandler commandHandler;
     private final CallBackHandler callBackHandler;
     private final MessageHandler messageHandler;
+    private final DatabaseSender databaseSender;
+    private final InvestmentSender investmentSender;
 
     @NonFinal
     private final Map<Long, String> userContext = new HashMap<>();
@@ -52,13 +60,42 @@ public class TelegramBot extends TelegramLongPollingBot {
                 sendMessage(commandHandler.handleCommands(update, userContext));
             }
         } else if (update.hasCallbackQuery()){
-            sendMessage(callBackHandler.handleCallBack(update, userContext));
+            if (update.getCallbackQuery().getData().startsWith("simpleGUS")) {
+                SendPhoto photo;
+//                log.info("not context {}", update.getCallbackQuery().getData());
+                try {
+                    photo = new GetInstrumentSimpleCallBack(databaseSender, investmentSender).handle(update);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+                if (photo != null) {
+                    sendPhoto(photo);
+                } else {
+                    sendMessage(new SendMessage(
+                            String.valueOf(update.getCallbackQuery().getMessage().getChatId()),
+                            Message.deletedError));
+                }
+            } else {
+                try {
+                    sendMessage(callBackHandler.handleCallBack(update, userContext));
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
         }
     }
 
     @Override
     public String getBotUsername() {
         return botName;
+    }
+
+    public void sendPhoto(SendPhoto sendPhoto) {
+        try {
+            execute(sendPhoto);
+        } catch (TelegramApiException e) {
+            log.error(e.getMessage());
+        }
     }
 
     public void sendMessage(SendMessage message) {

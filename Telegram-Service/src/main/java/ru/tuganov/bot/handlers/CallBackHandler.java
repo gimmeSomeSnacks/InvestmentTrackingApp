@@ -2,6 +2,7 @@ package ru.tuganov.bot.handlers;
 
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.NonFinal;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -15,6 +16,7 @@ import ru.tuganov.bot.utils.Metrics;
 import ru.tuganov.broker.senders.DatabaseSender;
 import ru.tuganov.broker.senders.InvestmentSender;
 
+import java.io.IOException;
 import java.util.Map;
 
 @Service
@@ -23,23 +25,25 @@ public class CallBackHandler {
     private final DatabaseSender databaseSender;
     private final InvestmentSender investmentSender;
 
-    private Map<String, SimpleCallBack> callBacks;
+    private Map<String, SimpleCallBack<?>> callBacks;
 
     @PostConstruct
     private void init() {
         callBacks = Map.of(
-                "simpleGUS", new GetInstrumentSimpleCallBack(databaseSender, investmentSender),
+//                "simpleGUS", new GetInstrumentSimpleCallBack(databaseSender, investmentSender),
                 "simpleGUI", new GetInstrumentsSimpleCallBack(databaseSender, investmentSender),
                 "simpleDIC", new DeleteSimpleCallBack(databaseSender)
         );
     }
-    private Map<String, ContextCallBackHandler> contextCallBackHandler = Map.of (
+
+    @NonFinal
+    private final Map<String, ContextCallBackHandler> contextCallBackHandler = Map.of (
       "contextAI", new AddInstrumentCallBack(),
             "contextSN", new NewPriceCallBack(),
             "contextSP", new EditPriceCallBack()
     );
 
-    public SendMessage handleCallBack(Update update, Map<Long, String> userContext) {
+    public SendMessage handleCallBack(Update update, Map<Long, String> userContext) throws IOException {
         var callBackData = update.getCallbackQuery().getData();
         if (callBackData.startsWith("context")) {
             userContext.put(update.getCallbackQuery().getMessage().getChatId(), "");
@@ -53,7 +57,7 @@ public class CallBackHandler {
             if (callBack == null)
                 return new SendMessage(String.valueOf(update.getCallbackQuery().getMessage().getChatId()), Message.unknownCommand);
             else
-                return callBack.handle(update);
+                return (SendMessage) callBack.handle(update);
         }
     }
 }

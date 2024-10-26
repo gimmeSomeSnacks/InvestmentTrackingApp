@@ -15,7 +15,7 @@ services:
       - "5432:5432"
     environment:
       POSTGRES_USER: "postgres"
-      POSTGRES_PASSWORD: "privet"
+      POSTGRES_PASSWORD: "admin"
       POSTGRES_DB: "investmentDB"
     volumes:
       - db-data:/var/lib/postgresql/data
@@ -44,7 +44,7 @@ services:
       - "15672:15672"
     environment:
       RABBITMQ_DEFAULT_USER: "root"
-      RABBITMQ_DEFAULT_PASS: "privet"
+      RABBITMQ_DEFAULT_PASS: "admin"
     volumes:
       - rabbitmq-data:/var/lib/rabbitmq/data
       - rabbitmq-logs:/var/lib/rabbitmq

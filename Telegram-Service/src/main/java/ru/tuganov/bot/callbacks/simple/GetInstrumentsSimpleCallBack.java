@@ -18,7 +18,7 @@ import java.util.List;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class GetInstrumentsSimpleCallBack implements SimpleCallBack {
+public class GetInstrumentsSimpleCallBack implements SimpleCallBack<SendMessage> {
     private final DatabaseSender databaseSender;
     private final InvestmentSender investmentSender;
 

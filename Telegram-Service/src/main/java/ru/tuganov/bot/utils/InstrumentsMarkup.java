@@ -2,6 +2,7 @@ package ru.tuganov.bot.utils;
 
 import lombok.extern.slf4j.Slf4j;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import ru.tuganov.dto.InstrumentDto;
@@ -31,7 +32,7 @@ public class InstrumentsMarkup {
         sendMessage.setReplyMarkup(inlineKeyboardMarkup);
     }
 
-    public static void setMenu(SendMessage sendMessage, List<MarkupDataDto> markupDataDtoList) {
+    public static <T> void setMenu(T sendMessage, List<MarkupDataDto> markupDataDtoList) {
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
         List<InlineKeyboardButton> buttons = new ArrayList<>();
         List<List<InlineKeyboardButton>> rows = new ArrayList<>();
@@ -45,6 +46,9 @@ public class InstrumentsMarkup {
 
         rows.add(buttons);
         inlineKeyboardMarkup.setKeyboard(rows);
-        sendMessage.setReplyMarkup(inlineKeyboardMarkup);
+        if (sendMessage instanceof SendMessage)
+            ((SendMessage) sendMessage).setReplyMarkup(inlineKeyboardMarkup);
+        else if (sendMessage instanceof SendPhoto)
+            ((SendPhoto) sendMessage).setReplyMarkup(inlineKeyboardMarkup);
     }
 }

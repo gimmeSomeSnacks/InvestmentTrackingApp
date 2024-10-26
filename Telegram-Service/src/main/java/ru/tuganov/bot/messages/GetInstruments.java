@@ -1,6 +1,7 @@
 package ru.tuganov.bot.messages;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -12,6 +13,7 @@ import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class GetInstruments implements MessageHandler {
     private final InvestmentSender investmentSender;
     public SendMessage handle(Update update, Map<Long, String> userContext) {

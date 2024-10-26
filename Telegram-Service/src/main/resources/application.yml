@@ -5,9 +5,9 @@ spring:
         host: rabbitmq
         port: 5672
         username: root
-        password: privet
+        password: admin
 bot:
     name: "InvestmentNotificationBot"
-    token: "${TOKEN}"
+    token: "TOKEN"
 scheduling:
     fixed-rate: 300000

@@ -11,7 +11,7 @@ import static java.lang.Long.parseLong;
 
 @Component
 @RequiredArgsConstructor
-public class DeleteSimpleCallBack implements SimpleCallBack {
+public class DeleteSimpleCallBack implements SimpleCallBack<SendMessage> {
     private final DatabaseSender databaseSender;
 
     @Override

@@ -9,6 +9,9 @@ import org.springframework.context.annotation.Configuration;
 import ru.tinkoff.piapi.core.InstrumentsService;
 import ru.tinkoff.piapi.core.InvestApi;
 import ru.tinkoff.piapi.core.MarketDataService;
+import ru.tuganov.dto.PricesDto;
+
+import java.util.List;
 
 @Configuration
 public class InvestmentConfiguration {

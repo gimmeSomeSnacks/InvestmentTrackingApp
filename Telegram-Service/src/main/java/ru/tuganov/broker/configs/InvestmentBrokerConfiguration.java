@@ -22,6 +22,11 @@ public class InvestmentBrokerConfiguration {
     }
 
     @Bean
+    public Queue instrumentPricesQueue() {
+        return new Queue("instrumentPricesQueue", false);
+    }
+
+    @Bean
     public DirectExchange instrumentExchange() {
         return new DirectExchange("instrumentExchange");
     }
@@ -31,6 +36,10 @@ public class InvestmentBrokerConfiguration {
         return new DirectExchange("instrumentListExchange");
     }
 
+    @Bean
+    public DirectExchange instrumentPricesExchange() {
+        return new DirectExchange("instrumentPricesExchange");
+    }
 
     @Bean
     public Binding instrumentNameBinding(Queue instrumentQueue, DirectExchange instrumentExchange) {
@@ -40,5 +49,10 @@ public class InvestmentBrokerConfiguration {
     @Bean
     public Binding instrumentBinding(Queue instrumentListQueue, DirectExchange instrumentListExchange) {
         return BindingBuilder.bind(instrumentListQueue).to(instrumentListExchange).with("instrumentList");
+    }
+
+    @Bean
+    public Binding instrumentPriceBinding(Queue instrumentPricesQueue, DirectExchange instrumentPricesExchange) {
+        return BindingBuilder.bind(instrumentPricesQueue).to(instrumentPricesExchange).with("instrumentPrices");
     }
 }

@@ -5,6 +5,6 @@ spring:
         host: rabbitmq
         port: 5672
         username: root
-        password: privet
+        password: admin
 tinkoff:
-    token: "t.EfXNQDuWlDs7GLehdE1chdXCz2qzN5wfTPP9mG0a431Y6Q18TrYDAjwNssbF4_TyzI5WL5Sl5JKu7sqSK9yFtQ"
+    token: "TOKEN"

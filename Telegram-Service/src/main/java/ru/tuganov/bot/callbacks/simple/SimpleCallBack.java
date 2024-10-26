@@ -1,8 +1,9 @@
 package ru.tuganov.bot.callbacks.simple;
 
-import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
-public interface SimpleCallBack {
-    SendMessage handle(Update update);
+import java.io.IOException;
+
+public interface SimpleCallBack<T> {
+    T handle(Update update) throws IOException;
 }

@@ -22,11 +22,11 @@ public class DatabaseSender {
 
     public List<InstrumentDBDto> getInstruments(Long chatId) {
         var instruments = rabbitTemplate.convertSendAndReceive(getInstrumentsExchange.getName(), "getInstruments", chatId);
-        try {
-            Thread.sleep(2000);
-        } catch (InterruptedException e) {
-            log.error(e.getMessage());
-        }
+//        try {
+//            Thread.sleep(2000);
+//        } catch (InterruptedException e) {
+//            log.error(e.getMessage());
+//        }
         if (instruments != null) {
             return (List<InstrumentDBDto>) instruments;
         }
@@ -48,11 +48,11 @@ public class DatabaseSender {
 
     public List<InstrumentDBDto> getAllInstruments() {
         var instruments = (List<InstrumentDBDto>) rabbitTemplate.convertSendAndReceive(getAllInstrumentsExchange.getName(), "getAllInstruments", "text");
-        try {
-            Thread.sleep(2000);
-        } catch (InterruptedException e) {
-            log.error(e.getMessage());
-        }
+//        try {
+//            Thread.sleep(2000);
+//        } catch (InterruptedException e) {
+//            log.error(e.getMessage());
+//        }
         return instruments;
     }
 }
