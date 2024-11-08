@@ -5,4 +5,4 @@
 
 Запустить: docker-compose up
 
-@InvestmentNotificationBot
+@InvestmentNotificationBot (на текущий момент не активен)
